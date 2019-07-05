@@ -50,7 +50,9 @@ export default function LoginModal() {
           name: res.data.user.name,
           email: res.data.user.email
         };
+
         setToggle(!toggle);
+
         setUser(userInfo);
       })
       .catch(err => {

@@ -16,7 +16,18 @@ import LoginModal from "./auth/LoginModal";
 
 export default function AppNavbar() {
   const [burger, setBurger] = useState(false);
-  const [user] = useContext(UserContext);
+  const [user, setUser] = useContext(UserContext);
+  // localStorage.clear();
+  // if user is authenticated then set a local storage
+  if (user.isAuthenticated) {
+    localStorage.setItem("user", JSON.stringify(user));
+  }
+  // check if theres a previous user before refresh
+  // then set it back to the state
+  if (localStorage.getItem("user") && !user.isAuthenticated) {
+    setUser(JSON.parse(localStorage.getItem("user")));
+  }
+
   return (
     <div>
       <Navbar color="dark" dark expand="sm" className="mb-5">

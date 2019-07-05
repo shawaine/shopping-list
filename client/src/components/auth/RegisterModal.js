@@ -51,6 +51,7 @@ export default function RegisterModal() {
           name: res.data.user.name,
           email: res.data.user.email
         };
+
         setUser(userInfo);
       })
       .catch(err => {
