@@ -7,15 +7,31 @@ import {
   Form,
   FormGroup,
   Label,
-  Input
+  Input,
+  Container,
+  Alert
 } from "reactstrap";
 import Axios from "axios";
 import { LoadingContext } from "../contexts/LoadingContext";
+import { ErrorContext } from "../contexts/ErrorContext";
+import { UserContext } from "../contexts/UserContext";
 
 export default function ItemModal() {
+  // eslint-disable-next-line
   const [isLoading, setIsLoading] = useContext(LoadingContext);
+  const [error, setError] = useContext(ErrorContext);
+  const [user] = useContext(UserContext);
   const [toggle, setToggle] = useState(false);
   const [item, setItem] = useState([{ name: "" }]);
+
+  const tokenConfig = {
+    headers: {
+      "Content-type": "application/json"
+    }
+  };
+  if (user.token) {
+    tokenConfig.headers["x-auth-token"] = user.token;
+  }
 
   const itemOnChange = e => {
     setItem(e.target.value);
@@ -26,31 +42,44 @@ export default function ItemModal() {
 
     if (item) {
       setIsLoading(true);
-      Axios.post("/api/items", { name: item }).then(res => setIsLoading(false));
+      Axios.post("/api/items", { name: item }, tokenConfig)
+        .then(res => setIsLoading(false))
+        .catch(err => {
+          setError(err.response.data.message);
+          setTimeout(() => {
+            setError();
+          }, 2000);
+        });
     }
     setItem("");
     setToggle(!toggle);
   };
   return (
-    <div>
-      <Button
-        color="dark"
-        style={{ marginBottom: "2rem" }}
-        onClick={() => {
-          setToggle(!toggle);
-        }}
-      >
-        Add Item
-      </Button>
+    <Container>
+      {user.isAuthenticated ? (
+        <Button
+          color="dark"
+          style={{ marginBottom: "2rem" }}
+          onClick={() => {
+            setToggle(!toggle);
+          }}
+        >
+          Add Item
+        </Button>
+      ) : (
+        <h4 className="mb-3 ml-4">Please log in to manage items</h4>
+      )}
       <Modal
         isOpen={toggle}
         toggle={() => {
           setToggle(!toggle);
         }}
       >
+        {error ? <Alert color="danger">{error}</Alert> : null}
         <ModalHeader
           toggle={() => {
             setToggle(!toggle);
+            setError();
           }}
         >
           Add To Shopping List
@@ -73,6 +102,6 @@ export default function ItemModal() {
           </Form>
         </ModalBody>
       </Modal>
-    </div>
+    </Container>
   );
 }
