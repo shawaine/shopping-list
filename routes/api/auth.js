@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
-const config = require("config");
 const jwt = require("jsonwebtoken");
 const auth = require("../../middleware/auth");
 
@@ -28,10 +27,10 @@ router.post("/", (req, res) => {
       if (!isMatch) {
         return res.status(400).json({ msg: "Invalid Credentials" });
       }
-
+      // Check the token
       jwt.sign(
         { id: user.id },
-        config.get("jwtSecret"),
+        process.env.JWT_SECRET,
         {
           expiresIn: 3600
         },
@@ -54,10 +53,9 @@ router.post("/", (req, res) => {
 // @route   GET api/auth/user
 // @desc    Get user data
 // @access  public
-router.get("/user", auth, (req, res) => {
-  User.findById(res.user.id)
-    .select("-password")
-    .then(user => res.json(user));
+router.get("/user", auth, async (req, res) => {
+  const selectedUser = await User.findById(res.user.id).select("-password");
+  res.json(user);
 });
 
 module.exports = router;

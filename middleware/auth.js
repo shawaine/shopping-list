@@ -1,7 +1,7 @@
-const config = require("config");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
-function auth(req, res, next) {
+const auth = (req, res, next) => {
   const token = req.header("x-auth-token");
 
   // Check token
@@ -11,7 +11,7 @@ function auth(req, res, next) {
 
   try {
     // Verify token
-    const decoded = jwt.verify(token, config.get("jwtSecret"));
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Add user from payload
     res.user = decoded;
@@ -19,6 +19,6 @@ function auth(req, res, next) {
   } catch (e) {
     res.status(400).json({ message: "token is not valid" });
   }
-}
+};
 
 module.exports = auth;

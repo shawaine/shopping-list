@@ -1,17 +1,18 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
-const config = require("config");
-
 const app = express();
-app.use(express.json());
+require("dotenv").config();
 
-// DB Config
-const db = config.get("mongoURI");
+// express body parser
+app.use(express.json());
 
 // Connect to Mongo
 mongoose
-  .connect(db, { useNewUrlParser: true, useCreateIndex: true })
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useCreateIndex: true
+  })
   .then(() => console.log("Mongo Connected..."))
   .catch(err => console.log(err));
 
